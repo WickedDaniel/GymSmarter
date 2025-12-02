@@ -356,6 +356,7 @@ public class Controlador implements Initializable {
             cambiarPanelCliente(pcMenu);
             cambiarPanelPadre(cliente);
             clienteGreet.setText("Hola, "+currentUser.getNombre()+"!");
+            cargarPerfilCliente();
         }
         if (currentUser instanceof Profesional) {
             cambiarPanelCliente(pspMenu);
@@ -410,6 +411,7 @@ public class Controlador implements Initializable {
             cambiarPanelCliente(pcMenu);
             cambiarPanelPadre(cliente);
             clienteGreet.setText("Hola, "+newUser.getNombre()+"!");
+            cargarPerfilCliente();
         }
         if (newUser instanceof Profesional) {
             cambiarPanelCliente(pspMenu);
