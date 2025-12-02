@@ -62,7 +62,7 @@
    <center>
       <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
-            <AnchorPane fx:id="profesional" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <AnchorPane fx:id="profesional" prefHeight="200.0" prefWidth="200.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
                   <AnchorPane fx:id="pspClientes" prefHeight="200.0" prefWidth="200.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
@@ -984,15 +984,15 @@
                               <Label alignment="CENTER" prefHeight="18.0" prefWidth="397.0" text="Informacion compartida con el Profesional de Salud" textAlignment="CENTER" />
                               <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0" VBox.vgrow="ALWAYS">
                                  <children>
-                                    <CheckBox mnemonicParsing="false" text="Frecuencia Cardiaca" />
-                                    <CheckBox mnemonicParsing="false" text="Variabilidad Cardiaca" />
+                                    <CheckBox fx:id="puedeverFrecuencia" mnemonicParsing="false" text="Frecuencia Cardiaca" />
+                                    <CheckBox fx:id="puedeverVariabilidad" mnemonicParsing="false" text="Variabilidad Cardiaca" />
                                  </children>
                               </HBox>
                               <HBox alignment="CENTER" layoutX="15.0" layoutY="513.0" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                                  <children>
-                                    <CheckBox mnemonicParsing="false" text="Glucosa" />
-                                    <CheckBox mnemonicParsing="false" text="Actividad Fisica" />
-                                    <CheckBox layoutX="158.0" layoutY="10.0" mnemonicParsing="false" text="Calidad de Sueño" />
+                                    <CheckBox fx:id="puedeverGlucosa" mnemonicParsing="false" text="Glucosa" />
+                                    <CheckBox fx:id="puedeverActividad" mnemonicParsing="false" text="Actividad Fisica" />
+                                    <CheckBox fx:id="puedeverCalidadSueno" layoutX="158.0" layoutY="10.0" mnemonicParsing="false" text="Calidad de Sueño" />
                                  </children>
                               </HBox>
                               <ButtonBar prefHeight="52.0" prefWidth="335.0">

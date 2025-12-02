@@ -109,6 +109,13 @@ public class Controlador implements Initializable {
     public Spinner<Double> PCobjetivoselection;
     private ObservableList<Meta> listaMetasCliente = FXCollections.observableArrayList();
 
+    public CheckBox puedeverFrecuencia;
+    public CheckBox puedeverGlucosa;
+    public CheckBox puedeverActividad;
+    public CheckBox puedeverCalidadSueno;
+    public CheckBox puedeverVariabilidad;
+
+
     private void cambiarPanelPadre(AnchorPane panelSeleccionado) {
         profesional.setVisible(false);
         acceso.setVisible(false);
