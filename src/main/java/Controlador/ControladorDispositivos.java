@@ -29,7 +29,7 @@ public class ControladorDispositivos {
         listaWearablesGlobal = datosCargados;
     }
 
-    private void guardarWearables() {
+    public void guardarWearables() {
         manejadorBinario.guardar(filename, listaWearablesGlobal);
     }
 

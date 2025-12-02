@@ -26,7 +26,7 @@ public class ControladorAutenticacion {
         listaUsuarios = (cargados != null) ? cargados : new ArrayList<>();
     }
 
-    private void guardarUsuarios() {
+    public void guardarUsuarios() {
         manejadorUsuarios.guardar(filename, listaUsuarios);
     }
 

@@ -7,6 +7,7 @@ import Modelo.Enumeraciones.TipoMeta;
 import Modelo.Enumeraciones.TipoMetrica;
 import Modelo.Enumeraciones.TipoWearable;
 import Modelo.Excepciones.CredencialesInvalidasException;
+import Modelo.Excepciones.DispositivoNoEncontradoException;
 import Modelo.Excepciones.UsuarioNoEncontradoException;
 import Modelo.Excepciones.UsuarioYaExisteException;
 import javafx.collections.FXCollections;
@@ -194,9 +195,17 @@ public class Controlador implements Initializable {
             System.out.println("Debe seleccionar un wearable para eliminar.");
             return;
         }
-        listaExternaWearables.remove(seleccionado);
 
+        try {
+            controlAplicacion.getControladorDispositivos().eliminarWearable(
+                    controlAplicacion.getUsuarioActual(),
+                    seleccionado.getID()
+            );
+        } catch (DispositivoNoEncontradoException e) {
+            mostrarError("Error al eliminar Wearable", e.getMessage());
+        }
         actualizarListasCliente();
+        controlAplicacion.getControladorAutenticacion().guardarUsuarios();
     }
     @FXML
     private void agregarWearable() {
@@ -232,10 +241,14 @@ public class Controlador implements Initializable {
         System.out.println("ID = " + nuevo.getID());
         System.out.println("Descripción = " + nuevo.getDescripcion());
 
-        listaExternaWearables.add(nuevo);
+        controlAplicacion.getControladorDispositivos().registrarWearable(
+                controlAplicacion.getUsuarioActual(),
+                nuevo
+        );
         ocultarAgregarWearable();
         PCidwearable.clear();
         PCwearableselection.setValue(null);
+        controlAplicacion.getControladorAutenticacion().guardarUsuarios();
         actualizarListasCliente();
     }
 
@@ -253,28 +266,22 @@ public class Controlador implements Initializable {
             return;
         }
 
-        Meta nuevaMeta = new Meta(
-                1,
-                "sas@sas.com",
-                tipo,
-                objetivo
-        );
-
-        listaExternaMetas.add(nuevaMeta);
+        controlAplicacion.getControladorMetas().registrarMeta(controlAplicacion.getUsuarioActual(), tipo, objetivo);
         ocultarAgregarMeta();
         PCmetaselection.setValue(null);
         PCobjetivoselection.getValueFactory().setValue((double) 0);
         actualizarListasCliente();
-        System.out.println("Meta agregada: " + nuevaMeta);
+        controlAplicacion.getControladorAutenticacion().guardarUsuarios();
     }
 
 
     public void actualizarListasCliente() {
-        listaWearables.setAll(listaExternaWearables);
-        listaRecomendacionesCliente.setAll(listaExternaRecomendaciones);
-        listaAlertasCliente.setAll(listaExternaAlertas);
-        listaMetricasCliente.setAll(listaMetricasExterna);
-        listaMetasCliente.setAll(listaExternaMetas);
+        Cliente cliente = (Cliente) controlAplicacion.getUsuarioActual();
+        listaWearables.setAll(cliente.getListaWearables());
+        listaRecomendacionesCliente.setAll(cliente.getListaRecomendaciones());
+        listaAlertasCliente.setAll(cliente.getListaAlertas());
+        listaMetricasCliente.setAll(cliente.getListaMetricas());
+        listaMetasCliente.setAll(cliente.getListaMetas());
     }
 
 
@@ -357,6 +364,7 @@ public class Controlador implements Initializable {
             cambiarPanelPadre(cliente);
             clienteGreet.setText("Hola, "+currentUser.getNombre()+"!");
             cargarPerfilCliente();
+            actualizarListasCliente();
         }
         if (currentUser instanceof Profesional) {
             cambiarPanelCliente(pspMenu);
@@ -412,6 +420,7 @@ public class Controlador implements Initializable {
             cambiarPanelPadre(cliente);
             clienteGreet.setText("Hola, "+newUser.getNombre()+"!");
             cargarPerfilCliente();
+            actualizarListasCliente();
         }
         if (newUser instanceof Profesional) {
             cambiarPanelCliente(pspMenu);
