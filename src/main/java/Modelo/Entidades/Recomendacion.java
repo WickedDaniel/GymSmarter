@@ -2,6 +2,7 @@ package Modelo.Entidades;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Recomendacion implements Serializable {
 
@@ -59,5 +60,13 @@ public class Recomendacion implements Serializable {
 
     public void setFecha(LocalDateTime fecha) {
         this.fecha = fecha;
+    }
+
+    @Override
+    public String toString() {
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        String fechaFormateada = fecha.format(formato);
+        return "Recomendacion emitida: " + fechaFormateada + "\n"+
+                "Emitida por: " + correoProfesional;
     }
 }

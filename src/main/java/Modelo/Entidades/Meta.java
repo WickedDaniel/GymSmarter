@@ -5,6 +5,7 @@ import Modelo.Enumeraciones.TipoMeta;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class Meta implements Serializable {
     private int idMeta;
@@ -49,5 +50,16 @@ public class Meta implements Serializable {
 
     public void setEstado(EstadoMeta estado) {
         this.estado = estado;
+    }
+
+    @Override
+    public String toString() {
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        String inicio = fechaInicio.format(formato);
+        return  "Meta: " + tipoMeta +
+                "\nObjetivo: " + valorObjetivo +
+                "\nPeriodo: " + inicio +
+                "\nEstado: " + estado;
     }
 }

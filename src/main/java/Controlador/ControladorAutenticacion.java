@@ -35,11 +35,11 @@ public class ControladorAutenticacion {
         return false;
     }
 
-    public Usuario registrarCliente(String nombre, String apellido, String correo, String password) throws UsuarioYaExisteException {
+    public Usuario registrarCliente(String nombre, String apellido, String correo, String password) throws UsuarioYaExisteException, CredencialesInvalidasException {
         if (existeCorreo(correo)) throw new UsuarioYaExisteException("El correo ya está registrado.");
 
         if (!Encriptador.validarFortaleza(password)) {
-            throw new UsuarioYaExisteException(
+            throw new CredencialesInvalidasException(
                     "La contraseña no cumple con los requisitos de seguridad.\n" +
                             Encriptador.obtenerRequisitosFortaleza()
             );
@@ -74,7 +74,7 @@ public class ControladorAutenticacion {
         for (Usuario usuario : listaUsuarios) {
             if (!usuario.getCorreo().equalsIgnoreCase(correo)) continue;
 
-            if (!Encriptador.verificar(password, usuario.getContrasena())) throw new CredencialesInvalidasException("Contraseña incorrecta.");
+            if (!Encriptador.verificar(password, usuario.getContrasena())) throw new CredencialesInvalidasException("Credenciales incorrectas.");
 
             return usuario;
         }

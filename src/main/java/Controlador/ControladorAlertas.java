@@ -73,7 +73,7 @@ public class ControladorAlertas {
         ArrayList<Alerta> resultado = new ArrayList<>();
 
         for (Alerta alerta : listaAlertas) {
-            if (alerta.getCorreoUsuario().equals(correo)) resultado.add(alerta);
+            if (alerta.getCorreoCliente().equals(correo)) resultado.add(alerta);
         }
 
         return resultado;

@@ -13,7 +13,7 @@ import java.util.Base64;
 public class Encriptador {
     private static final String UNICODE_FORMAT = "UTF8";
     private static final String DESEDE_ENCRYPTION_SCHEME = "DESede";
-    private static final String ENCRYPTION_KEY = "ENCRYPTION_KEY";
+    private static final String ENCRYPTION_KEY = "123456789012345678901234";
 
     private static KeySpec keySpec;
     private static SecretKeyFactory secretKeyFactory;

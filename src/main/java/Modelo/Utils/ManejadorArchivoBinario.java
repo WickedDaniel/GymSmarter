@@ -10,6 +10,7 @@ public class ManejadorArchivoBinario<T> implements IManejadorArchivo<T> {
             oos.writeObject(objeto);
             return ManejadorArchivos.EXITO;
         } catch (IOException e) {
+            System.err.println("Error al guardar el archivo: " + e.getMessage());
             return ManejadorArchivos.ERROR_ARCHIVO;
         }
     }

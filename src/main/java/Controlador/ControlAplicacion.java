@@ -50,7 +50,7 @@ public class ControlAplicacion {
         return controladorReportes;
     }
 
-    public ControladorConstantes getControladorConstantes() {  // ← NUEVO GETTER
+    public ControladorConstantes getControladorConstantes() {
         return controladorConstantes;
     }
 

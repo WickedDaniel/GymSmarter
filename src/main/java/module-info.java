@@ -7,5 +7,7 @@ module com.poo.gymstarter {
 
     opens com.poo.gymstarter to javafx.fxml;
     exports Controlador;
+    exports Modelo.Enumeraciones;
+    exports Modelo.Entidades;
     exports com.poo.gymstarter;
 }
