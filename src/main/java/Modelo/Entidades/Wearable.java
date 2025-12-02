@@ -1,24 +1,19 @@
 package Modelo.Entidades;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
-public class Wearable implements Serializable {
-    private String ID;
-    private String tipo;
-    private String descripcion;
+public abstract class Wearable implements Serializable {
+    protected String ID;
+    protected String descripcion;
 
-    public Wearable(String identificador, String tipo, String descripcion) {
-        this.ID = identificador;
-        this.tipo = tipo;
+    public Wearable(String ID, String descripcion) {
+        this.ID = ID;
         this.descripcion = descripcion;
     }
 
     public String getID() {
         return ID;
-    }
-
-    public String getTipo() {
-        return tipo;
     }
 
     public String getDescripcion() {
@@ -27,5 +22,14 @@ public class Wearable implements Serializable {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public abstract ArrayList<Metrica> monitorear(String correoCliente);
+
+    public abstract String getTipo();
+
+    @Override
+    public String toString() {
+        return getTipo() + " [ID: " + ID + "] - " + descripcion;
     }
 }

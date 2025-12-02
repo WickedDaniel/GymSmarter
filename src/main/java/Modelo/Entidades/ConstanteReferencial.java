@@ -6,20 +6,16 @@ import java.io.Serializable;
 public class ConstanteReferencial implements Serializable {
 
     private TipoMetrica tipoMetrica;
-
     private double limiteInferiorNormal;
     private double limiteSuperiorNormal;
-
     private double limiteInferiorCritico;
     private double limiteSuperiorCritico;
-
     private String unidad;
 
     public ConstanteReferencial() {
     }
 
     public ConstanteReferencial(TipoMetrica tipoMetrica, double limiteInferiorNormal, double limiteSuperiorNormal, double limiteInferiorCritico, double limiteSuperiorCritico, String unidad) {
-
         this.tipoMetrica = tipoMetrica;
         this.limiteInferiorNormal = limiteInferiorNormal;
         this.limiteSuperiorNormal = limiteSuperiorNormal;
@@ -28,6 +24,7 @@ public class ConstanteReferencial implements Serializable {
         this.unidad = unidad;
     }
 
+    // Getters y Setters
     public TipoMetrica getTipoMetrica() {
         return tipoMetrica;
     }
@@ -74,5 +71,37 @@ public class ConstanteReferencial implements Serializable {
 
     public void setUnidad(String unidad) {
         this.unidad = unidad;
+    }
+
+    public double calcularPuntoMedioNormal() {
+        return (limiteInferiorNormal + limiteSuperiorNormal) / 2.0;
+    }
+
+    public double calcularRangoNormal() {
+        return limiteSuperiorNormal - limiteInferiorNormal;
+    }
+
+    public double calcularRangoCritico() {
+        return limiteSuperiorCritico - limiteInferiorCritico;
+    }
+
+    public boolean estaEnRangoNormal(double valor) {
+        return valor >= limiteInferiorNormal && valor <= limiteSuperiorNormal;
+    }
+
+    public boolean estaEnRangoCritico(double valor) {
+        return (valor >= limiteInferiorCritico && valor < limiteInferiorNormal) ||
+                (valor > limiteSuperiorNormal && valor <= limiteSuperiorCritico);
+    }
+
+    public boolean estaFueraDeTodosLosRangos(double valor) {
+        return valor < limiteInferiorCritico || valor > limiteSuperiorCritico;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s: Normal[%.2f-%.2f] Crítico[%.2f-%.2f] %s",
+                tipoMetrica, limiteInferiorNormal, limiteSuperiorNormal,
+                limiteInferiorCritico, limiteSuperiorCritico, unidad);
     }
 }

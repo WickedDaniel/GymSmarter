@@ -4,16 +4,18 @@ import Modelo.Entidades.Cliente;
 import Modelo.Entidades.Profesional;
 import Modelo.Entidades.Usuario;
 import Modelo.Excepciones.CredencialesInvalidasException;
+import Modelo.Excepciones.GymSmarterException;
 import Modelo.Excepciones.UsuarioNoEncontradoException;
 import Modelo.Excepciones.UsuarioYaExisteException;
 import Modelo.Utils.ManejadorArchivoBinario;
+import Modelo.Utils.Encriptador;
 
 import java.util.ArrayList;
 
 public class ControladorAutenticacion {
     private ArrayList<Usuario> listaUsuarios;
     private final String filename = "Data/usuarios.dat";
-    private ManejadorArchivoBinario<ArrayList<Usuario>> manejadorUsuarios = new ManejadorArchivoBinario<>();
+    private final ManejadorArchivoBinario<ArrayList<Usuario>> manejadorUsuarios = new ManejadorArchivoBinario<>();
 
     public ControladorAutenticacion() {
         cargarUsuarios();
@@ -36,16 +38,33 @@ public class ControladorAutenticacion {
     public Usuario registrarCliente(String nombre, String apellido, String correo, String password) throws UsuarioYaExisteException {
         if (existeCorreo(correo)) throw new UsuarioYaExisteException("El correo ya está registrado.");
 
-        Cliente nuevo = new Cliente(nombre, apellido, correo, password);
+        if (!Encriptador.validarFortaleza(password)) {
+            throw new UsuarioYaExisteException(
+                    "La contraseña no cumple con los requisitos de seguridad.\n" +
+                            Encriptador.obtenerRequisitosFortaleza()
+            );
+        }
+
+        String passwordEncriptada = Encriptador.encriptar(password);
+
+        if (passwordEncriptada == null) {
+            throw new UsuarioYaExisteException("Error al procesar la contraseña.");
+        }
+
+        Cliente nuevo = new Cliente(nombre, apellido, correo, passwordEncriptada);
         listaUsuarios.add(nuevo);
         guardarUsuarios();
         return nuevo;
     }
 
-    public Usuario registrarProfesional(String nombre, String apellido, String correo, String password) throws UsuarioYaExisteException {
+    public Usuario registrarProfesional(String nombre, String apellido, String correo, String password) throws UsuarioYaExisteException, CredencialesInvalidasException {
         if (existeCorreo(correo)) throw new UsuarioYaExisteException("El correo ya está registrado.");
 
-        Profesional nuevo = new Profesional(nombre, apellido, correo, password);
+        String passwordEncriptada = Encriptador.encriptar(password);
+
+        if (passwordEncriptada == null) {throw new CredencialesInvalidasException("Error al procesar la contraseña.");}
+
+        Profesional nuevo = new Profesional(nombre, apellido, correo, passwordEncriptada);
         listaUsuarios.add(nuevo);
         guardarUsuarios();
         return nuevo;
@@ -54,7 +73,9 @@ public class ControladorAutenticacion {
     public Usuario iniciarSesion(String correo, String password) throws CredencialesInvalidasException, UsuarioNoEncontradoException {
         for (Usuario usuario : listaUsuarios) {
             if (!usuario.getCorreo().equalsIgnoreCase(correo)) continue;
-            if (!usuario.getContrasena().equals(password)) throw new CredencialesInvalidasException("Contraseña incorrecta.");
+
+            if (!Encriptador.verificar(password, usuario.getContrasena())) throw new CredencialesInvalidasException("Contraseña incorrecta.");
+
             return usuario;
         }
 

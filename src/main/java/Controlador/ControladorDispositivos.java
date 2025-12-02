@@ -1,6 +1,7 @@
 package Controlador;
 
 import Modelo.Entidades.Cliente;
+import Modelo.Entidades.Metrica;
 import Modelo.Entidades.Usuario;
 import Modelo.Entidades.Wearable;
 import Modelo.Excepciones.DispositivoNoEncontradoException;
@@ -57,7 +58,7 @@ public class ControladorDispositivos {
                 break;
             }
         }
-        if (wearableEncontrado == null) throw new DispositivoNoEncontradoException();
+        if (wearableEncontrado == null) throw new DispositivoNoEncontradoException("Wearable no encontrado");
 
         cliente.getListaWearables().remove(wearableEncontrado);
         listaWearablesGlobal.remove(wearableEncontrado);
@@ -67,5 +68,57 @@ public class ControladorDispositivos {
     public ArrayList<Wearable> obtenerWearablesDeUsuario(Usuario usuario) {
         if (!esCliente(usuario)) return new ArrayList<>();
         return ((Cliente) usuario).getListaWearables();
+    }
+
+    public ArrayList<Metrica> sincronizarDatos(Usuario usuario, String wearableID, ControladorMetricas controladorMetricas, ControladorAlertas controladorAlertas) throws DispositivoNoEncontradoException {
+
+        if (!esCliente(usuario)) {
+            throw new DispositivoNoEncontradoException("Solo los clientes pueden sincronizar wearables");
+        }
+
+        Cliente cliente = (Cliente) usuario;
+        Wearable wearable = null;
+        for (Wearable w : cliente.getListaWearables()) {
+            if (w.getID().equals(wearableID)) {
+                wearable = w;
+                break;
+            }
+        }
+
+        if (wearable == null) {
+            throw new DispositivoNoEncontradoException("Wearable con ID " + wearableID + " no encontrado");
+        }
+
+        ArrayList<Metrica> metricasGeneradas = wearable.monitorear(cliente.getCorreo());
+        for (Metrica metrica : metricasGeneradas) {
+            Metrica metricaRegistrada = controladorMetricas.registrarMetrica(usuario, metrica.getTipoMetrica(), metrica.getValorPrimario(), metrica.getValorSecundario());
+
+            if (metricaRegistrada != null) {
+                controladorAlertas.procesarMetrica(metricaRegistrada, cliente);
+            }
+        }
+
+        return metricasGeneradas;
+    }
+
+    public int sincronizarTodosLosWearables(Usuario usuario, ControladorMetricas controladorMetricas, ControladorAlertas controladorAlertas) {
+        if (!esCliente(usuario)) return 0;
+
+        Cliente cliente = (Cliente) usuario;
+        int totalMetricas = 0;
+
+        for (Wearable wearable : cliente.getListaWearables()) {
+            try {
+                ArrayList<Metrica> metricas = sincronizarDatos(usuario, wearable.getID(), controladorMetricas, controladorAlertas);
+                totalMetricas += metricas.size();
+
+                System.out.println("Sincronizado " + wearable.getTipo() + " [" + wearable.getID() + "]: " + metricas.size() + " métricas");
+
+            } catch (DispositivoNoEncontradoException e) {
+                System.err.println("Error al sincronizar " + wearable.getID() + ": " + e.getMessage());
+            }
+        }
+
+        return totalMetricas;
     }
 }
