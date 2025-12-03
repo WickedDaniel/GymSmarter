@@ -2,6 +2,7 @@ package Modelo.Entidades;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class Reporte implements Serializable {
@@ -67,4 +68,18 @@ public class Reporte implements Serializable {
     public void setMetricasIncluidas(ArrayList<Metrica> metricasIncluidas) {
         this.metricasIncluidas = metricasIncluidas;
     }
+
+    @Override
+    public String toString() {
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        String fechaFormateada = fechaHora.format(formato);
+
+        int cantidadMetricas = (metricasIncluidas == null) ? 0 : metricasIncluidas.size();
+
+        return "Reporte #" + idReporte + "\n" +
+                "Fecha: " + fechaFormateada + "\n" +
+                "Cliente: " + correoCliente + "\n" +
+                "Métricas incluidas: " + cantidadMetricas;
+    }
+
 }

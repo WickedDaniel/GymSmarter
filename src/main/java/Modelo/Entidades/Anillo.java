@@ -1,10 +1,12 @@
 package Modelo.Entidades;
 
 import Modelo.Enumeraciones.TipoMetrica;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Anillo extends Wearable {
+public class Anillo extends Wearable implements Serializable {
 
     public Anillo(String ID, String descripcion) {
         super(ID, descripcion);

@@ -68,7 +68,7 @@
                      <children>
                         <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
-                              <ChoiceBox prefHeight="26.0" prefWidth="308.0">
+                              <ChoiceBox fx:id="clienteSeleccionadoClientes" prefHeight="26.0" prefWidth="308.0">
                                  <VBox.margin>
                                     <Insets left="15.0" top="10.0" />
                                  </VBox.margin>
@@ -86,11 +86,12 @@
                                              <children>
                                                 <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                    <children>
-                                                      <ListView prefHeight="397.0" prefWidth="335.0" VBox.vgrow="ALWAYS">
+                                                      <ListView fx:id="listaActividadFisica" prefHeight="397.0" prefWidth="335.0" VBox.vgrow="ALWAYS">
                                                          <VBox.margin>
-                                                            <Insets left="10.0" right="10.0" />
+                                                            <Insets />
                                                          </VBox.margin>
                                                       </ListView>
+                                                      <Label fx:id="noticeMetricasFisica" prefHeight="17.0" prefWidth="407.0" />
                                                    </children>
                                                 </VBox>
                                              </children>
@@ -101,7 +102,12 @@
                                     <content>
                                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="502.0" prefWidth="335.0">
                                              <children>
-                                                <ListView prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                   <children>
+                                                      <ListView fx:id="listaSignosVitales" prefHeight="200.0" prefWidth="194.0" VBox.vgrow="ALWAYS" />
+                                                      <Label fx:id="noticeMetricasVitales" prefHeight="17.0" prefWidth="407.0" />
+                                                   </children>
+                                                </VBox>
                                              </children>
                                           </AnchorPane>
                                     </content>
@@ -110,7 +116,12 @@
                                        <content>
                                           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="502.0" prefWidth="335.0">
                                              <children>
-                                                <ListView prefHeight="200.0" prefWidth="200.0" />
+                                                <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                   <children>
+                                                      <ListView fx:id="listaCalidadSueno" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                                                      <Label fx:id="noticeMetricasSueno" prefHeight="17.0" prefWidth="407.0" />
+                                                   </children>
+                                                </VBox>
                                              </children>
                                           </AnchorPane>
                                        </content>
@@ -129,6 +140,9 @@
                                  </VBox.margin>
                               </ButtonBar>
                            </children>
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
                         </VBox>
                      </children>
                   </AnchorPane>
@@ -162,7 +176,7 @@
                      <children>
                         <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
-                              <ChoiceBox prefHeight="26.0" prefWidth="308.0">
+                              <ChoiceBox fx:id="clienteSeleccionadoRecomendaciones" prefHeight="26.0" prefWidth="308.0">
                                  <VBox.margin>
                                     <Insets left="15.0" top="10.0" />
                                  </VBox.margin>
@@ -178,10 +192,10 @@
                                        <content>
                                           <VBox prefHeight="433.0" prefWidth="335.0">
                                              <children>
-                                                <ListView prefHeight="208.0" prefWidth="335.0" />
+                                                <ListView fx:id="recomendacionesEmitidasACliente" prefHeight="208.0" prefWidth="335.0" />
                                                 <Separator prefWidth="200.0" />
                                                 <Label alignment="CENTER" prefHeight="18.0" prefWidth="397.0" text="Contenido" textAlignment="CENTER" />
-                                                <TextArea prefHeight="200.0" prefWidth="200.0" wrapText="true" />
+                                                <TextArea fx:id="recomendacionContenido" prefHeight="200.0" prefWidth="200.0" wrapText="true" VBox.vgrow="ALWAYS" />
                                              </children>
                                           </VBox>
                                        </content>
@@ -192,10 +206,11 @@
                                              <children>
                                                 <Separator prefWidth="200.0" />
                                                 <Label alignment="CENTER" prefHeight="18.0" prefWidth="397.0" text="Contenido" textAlignment="CENTER" />
-                                                <TextArea prefHeight="389.0" prefWidth="335.0" wrapText="true" />
+                                                <TextArea fx:id="contenidoRecomendacion" prefHeight="389.0" prefWidth="335.0" wrapText="true" />
+                                                <Label fx:id="emitirNotice" alignment="CENTER" layoutX="10.0" layoutY="13.0" prefHeight="18.0" prefWidth="397.0" textAlignment="CENTER" />
                                                 <HBox alignment="BOTTOM_CENTER" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
                                                    <children>
-                                                      <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="35.0" prefWidth="315.0" text="Button" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                      <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#emitirRecomendacion" prefHeight="35.0" prefWidth="315.0" text="Emitir" textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                          <HBox.margin>
                                                             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                                          </HBox.margin>
@@ -217,6 +232,9 @@
                                  </VBox.margin>
                               </ButtonBar>
                            </children>
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
                         </VBox>
                      </children>
                   </AnchorPane>
@@ -224,7 +242,7 @@
                      <children>
                         <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
-                              <ChoiceBox prefHeight="26.0" prefWidth="308.0">
+                              <ChoiceBox fx:id="clienteSeleccionadoReportes" prefHeight="26.0" prefWidth="308.0">
                                  <VBox.margin>
                                     <Insets left="15.0" top="10.0" />
                                  </VBox.margin>
@@ -240,7 +258,7 @@
                                        <content>
                                           <VBox>
                                              <children>
-                                                <ListView prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                                                <ListView fx:id="reportesGenerados" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
                                              </children>
                                              <padding>
                                                 <Insets bottom="10.0" />
@@ -252,10 +270,11 @@
                                        <content>
                                           <VBox>
                                              <children>
-                                                <TextArea prefHeight="438.0" prefWidth="335.0" wrapText="true" />
+                                                <TextArea fx:id="reporteContenido" editable="false" prefHeight="438.0" prefWidth="335.0" wrapText="true" VBox.vgrow="ALWAYS" />
+                                                <Label fx:id="reporeteNotice" alignment="CENTER" prefHeight="18.0" prefWidth="397.0" textAlignment="CENTER" />
                                                 <HBox alignment="BOTTOM_CENTER" prefHeight="100.0" prefWidth="200.0">
                                                    <children>
-                                                      <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="50.0" prefWidth="315.0" text="Generar Reporte" textAlignment="CENTER" HBox.hgrow="ALWAYS">
+                                                      <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#generarReporte" prefHeight="34.0" prefWidth="315.0" text="Generar Reporte" textAlignment="CENTER" HBox.hgrow="ALWAYS">
                                                          <HBox.margin>
                                                             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                                          </HBox.margin>
@@ -277,6 +296,9 @@
                                  </VBox.margin>
                               </ButtonBar>
                            </children>
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
                         </VBox>
                      </children>
                   </AnchorPane>
@@ -284,7 +306,7 @@
                      <children>
                         <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
-                              <ChoiceBox prefHeight="26.0" prefWidth="308.0">
+                              <ChoiceBox fx:id="constantesRegistradas" prefHeight="26.0" prefWidth="308.0">
                                  <VBox.margin>
                                     <Insets left="15.0" top="10.0" />
                                  </VBox.margin>
@@ -297,7 +319,7 @@
                               <HBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="335.0">
                                  <children>
                                     <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Limite Normal Min" wrappingWidth="116.98307228088379" />
-                                    <Spinner prefHeight="26.0" prefWidth="213.0" />
+                                    <Spinner fx:id="limitenormalMenor" prefHeight="26.0" prefWidth="213.0" />
                                  </children>
                                  <VBox.margin>
                                     <Insets left="15.0" right="15.0" top="15.0" />
@@ -306,7 +328,7 @@
                               <HBox alignment="CENTER_LEFT" layoutX="25.0" layoutY="84.0" prefHeight="50.0" prefWidth="335.0">
                                  <children>
                                     <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Limite Normal Max" wrappingWidth="116.98307228088379" />
-                                    <Spinner layoutX="127.0" layoutY="22.0" prefHeight="26.0" prefWidth="213.0" />
+                                    <Spinner fx:id="limitenormalSuperior" layoutX="127.0" layoutY="22.0" prefHeight="26.0" prefWidth="213.0" />
                                  </children>
                                  <VBox.margin>
                                     <Insets left="15.0" right="15.0" />
@@ -315,7 +337,7 @@
                               <HBox alignment="CENTER_LEFT" layoutX="25.0" layoutY="134.0" prefHeight="50.0" prefWidth="335.0">
                                  <children>
                                     <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Limite Critico Min" wrappingWidth="116.98307228088379" />
-                                    <Spinner layoutX="127.0" layoutY="22.0" prefHeight="26.0" prefWidth="213.0" />
+                                    <Spinner fx:id="limitecriticoMenor" layoutX="127.0" layoutY="22.0" prefHeight="26.0" prefWidth="213.0" />
                                  </children>
                                  <VBox.margin>
                                     <Insets left="15.0" right="15.0" />
@@ -324,7 +346,7 @@
                               <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="184.0" prefHeight="50.0" prefWidth="335.0">
                                  <children>
                                     <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Limite Critico Max" wrappingWidth="116.98307228088379" />
-                                    <Spinner prefHeight="26.0" prefWidth="213.0" />
+                                    <Spinner fx:id="limitecriticoSuperior" prefHeight="26.0" prefWidth="213.0" />
                                  </children>
                                  <VBox.margin>
                                     <Insets left="15.0" right="15.0" />
@@ -609,7 +631,7 @@
             </AnchorPane>
             <AnchorPane fx:id="cliente" layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <children>
-                  <AnchorPane fx:id="pcMenu" prefHeight="475.0" prefWidth="346.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <AnchorPane fx:id="pcMenu" prefHeight="475.0" prefWidth="346.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <VBox layoutX="159.0" layoutY="44.0" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
@@ -628,6 +650,11 @@
                                     <Insets top="10.0" />
                                  </VBox.margin>
                               </TilePane>
+                              <Button fx:id="PCgenerarsimulacion" alignment="CENTER" contentDisplay="TOP" mnemonicParsing="false" onAction="#generarSimulacion" prefHeight="45.0" prefWidth="446.0" text="Generar Simulacion">
+                                 <VBox.margin>
+                                    <Insets left="10.0" right="10.0" />
+                                 </VBox.margin>
+                              </Button>
                               <Label fx:id="clienteGreet" alignment="CENTER" contentDisplay="CENTER" prefHeight="120.0" prefWidth="509.0" text="Hola, {User}!" textAlignment="CENTER">
                                  <font>
                                     <Font name="System Bold" size="24.0" />
@@ -776,7 +803,7 @@
                                                 <Button layoutX="250.0" layoutY="18.0" mnemonicParsing="false" onAction="#regresarAlMenuCliente" text="Regresar" />
                                              </buttons>
                                              <VBox.margin>
-                                                <Insets bottom="10.0" left="10.0" right="10.0" />
+                                                <Insets bottom="10.0" />
                                              </VBox.margin>
                                           </ButtonBar>
                                        </children>
@@ -927,10 +954,10 @@
                                     <Font name="System Bold" size="24.0" />
                                  </font>
                               </Label>
-                              <ListView prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                              <ListView fx:id="PClistanotificaciones" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
                               <ButtonBar prefHeight="40.0" prefWidth="200.0">
                                  <buttons>
-                                    <Button layoutX="165.0" layoutY="18.0" mnemonicParsing="false" text="Limpiar" />
+                                    <Button layoutX="165.0" layoutY="18.0" mnemonicParsing="false" onAction="#limpiarNotificaciones" text="Limpiar" />
                                     <Button layoutX="250.0" layoutY="18.0" mnemonicParsing="false" onAction="#regresarAlMenuCliente" text="Regresar" />
                                  </buttons>
                                  <VBox.margin>
@@ -944,7 +971,7 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </padding>
                   </AnchorPane>
-                  <AnchorPane fx:id="pcPerfil" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <AnchorPane fx:id="pcPerfil" prefHeight="200.0" prefWidth="200.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
@@ -955,7 +982,7 @@
                               </Label>
                               <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                                  <children>
-                                    <ImageView fitHeight="200.0" fitWidth="290.0" pickOnBounds="true" HBox.hgrow="ALWAYS">
+                                    <ImageView fitHeight="153.0" fitWidth="290.0" pickOnBounds="true" HBox.hgrow="ALWAYS">
                                        <HBox.margin>
                                           <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                                        </HBox.margin>
@@ -981,7 +1008,8 @@
                                  <VBox.margin>
                                     <Insets left="15.0" right="15.0" />
                                  </VBox.margin></TextField>
-                              <Label alignment="CENTER" prefHeight="18.0" prefWidth="397.0" text="Informacion compartida con el Profesional de Salud" textAlignment="CENTER" />
+                              <Label alignment="CENTER" prefHeight="18.0" prefWidth="397.0" text="Compartir metricas con" textAlignment="CENTER" />
+                              <ChoiceBox fx:id="PCprofesionalseleccionado" prefHeight="25.0" prefWidth="382.0" />
                               <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0" VBox.vgrow="ALWAYS">
                                  <children>
                                     <CheckBox fx:id="puedeverFrecuencia" mnemonicParsing="false" text="Frecuencia Cardiaca" />

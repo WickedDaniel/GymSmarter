@@ -40,8 +40,7 @@ public class ControladorAutenticacion {
 
         if (!Encriptador.validarFortaleza(password)) {
             throw new CredencialesInvalidasException(
-                    "La contraseña no cumple con los requisitos de seguridad.\n" +
-                            Encriptador.obtenerRequisitosFortaleza()
+                    "La contraseña no cumple con los requisitos de seguridad.\n" + Encriptador.obtenerRequisitosFortaleza()
             );
         }
 

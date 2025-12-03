@@ -2,6 +2,8 @@ package Controlador;
 
 import Modelo.Entidades.Usuario;
 
+import javax.sound.sampled.Control;
+
 public class ControlAplicacion {
     private final ControladorAutenticacion controladorAutenticacion;
     private final ControladorDispositivos controladorDispositivos;
@@ -9,21 +11,34 @@ public class ControlAplicacion {
     private final ControladorAlertas controladorAlertas;
     private final ControladorMetas controladorMetas;
     private final ControladorReportes controladorReportes;
-    private final ControladorConstantes controladorConstantes;  // ← AHORA ES ACCESIBLE
+    private final ControladorPermisosCompartir controladorPermisosCompartir;
+    private final ControladorConstantes controladorConstantes;
+    private final ControladorRecomendaciones controladorRecomendaciones;
+    private final ControladorNotificaciones controladorNotificaciones;
 
     private Usuario usuarioActual;
 
     public ControlAplicacion() {
         controladorConstantes = new ControladorConstantes();
-
         controladorAutenticacion = new ControladorAutenticacion();
+        controladorPermisosCompartir = new ControladorPermisosCompartir();
         controladorDispositivos = new ControladorDispositivos();
         controladorMetricas = new ControladorMetricas();
         controladorMetas = new ControladorMetas();
         controladorReportes = new ControladorReportes();
         controladorAlertas = new ControladorAlertas(controladorConstantes.getListaConstantes());
+        controladorRecomendaciones = new ControladorRecomendaciones();
+        controladorNotificaciones = new ControladorNotificaciones();
 
         usuarioActual = null;
+    }
+
+    public ControladorRecomendaciones  getControladorRecomendaciones() {
+        return controladorRecomendaciones;
+    }
+
+    public ControladorPermisosCompartir getControladorPermisosCompartir() {
+        return controladorPermisosCompartir;
     }
 
     public ControladorAutenticacion getControladorAutenticacion() {
@@ -60,5 +75,9 @@ public class ControlAplicacion {
 
     public void setUsuarioActual(Usuario usuarioActual) {
         this.usuarioActual = usuarioActual;
+    }
+
+    public ControladorNotificaciones getControladorNotificaciones() {
+        return controladorNotificaciones;
     }
 }

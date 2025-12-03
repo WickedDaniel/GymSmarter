@@ -10,6 +10,7 @@ public class Cliente extends Usuario implements Serializable {
     private ArrayList<Alerta> listaAlertas;
     private ArrayList<Recomendacion> listaRecomendaciones;
     private ArrayList<Metrica> listaMetricas;
+    private ArrayList<Notificacion>  listaNotificaciones;
 
     public Cliente() {
         inicializarListas();
@@ -26,6 +27,7 @@ public class Cliente extends Usuario implements Serializable {
         listaAlertas = new ArrayList<>();
         listaRecomendaciones = new ArrayList<>();
         listaMetricas = new ArrayList<>();
+        listaNotificaciones = new ArrayList<>();
     }
 
     public ArrayList<Meta> getListaMetas() {
@@ -67,4 +69,18 @@ public class Cliente extends Usuario implements Serializable {
     public void setListaMetricas(ArrayList<Metrica> listaMetricas) {
         this.listaMetricas = listaMetricas;
     }
+
+    public ArrayList<Notificacion> getListaNotificaciones() {
+        return listaNotificaciones;
+    }
+
+    public void limpiarNotificaciones() {
+        listaNotificaciones.clear();
+    }
+
+    @Override
+    public String toString() {
+        return getNombre() + " " + getApellidos() + " (ID: " + getCorreo() + ")";
+    }
+
 }

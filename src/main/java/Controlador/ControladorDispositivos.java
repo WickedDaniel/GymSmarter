@@ -1,9 +1,6 @@
 package Controlador;
 
-import Modelo.Entidades.Cliente;
-import Modelo.Entidades.Metrica;
-import Modelo.Entidades.Usuario;
-import Modelo.Entidades.Wearable;
+import Modelo.Entidades.*;
 import Modelo.Excepciones.DispositivoNoEncontradoException;
 import Modelo.Utils.ManejadorArchivoBinario;
 
@@ -95,6 +92,40 @@ public class ControladorDispositivos {
 
             if (metricaRegistrada != null) {
                 controladorAlertas.procesarMetrica(metricaRegistrada, cliente);
+            }
+        }
+
+        return metricasGeneradas;
+    }
+
+    public ArrayList<Metrica> sincronizarDatos(Usuario usuario, String wearableID, ControladorMetricas controladorMetricas, ControladorAlertas controladorAlertas, ControladorNotificaciones controladorNotificaciones) throws DispositivoNoEncontradoException {
+
+        if (!esCliente(usuario)) {
+            throw new DispositivoNoEncontradoException("Solo los clientes pueden sincronizar wearables");
+        }
+
+        Cliente cliente = (Cliente) usuario;
+        Wearable wearable = null;
+        for (Wearable w : cliente.getListaWearables()) {
+            if (w.getID().equals(wearableID)) {
+                wearable = w;
+                break;
+            }
+        }
+
+        if (wearable == null) {
+            throw new DispositivoNoEncontradoException("Wearable con ID " + wearableID + " no encontrado");
+        }
+
+        ArrayList<Metrica> metricasGeneradas = wearable.monitorear(cliente.getCorreo());
+        for (Metrica metrica : metricasGeneradas) {
+            Metrica metricaRegistrada = controladorMetricas.registrarMetrica(usuario, metrica.getTipoMetrica(), metrica.getValorPrimario(), metrica.getValorSecundario());
+
+            if (metricaRegistrada != null) {
+                Alerta isAlerta = controladorAlertas.procesarMetrica(metricaRegistrada, cliente);
+                if (isAlerta != null) {
+                    controladorNotificaciones.emitirNotificacionACliente(cliente, "Nueva alerta", "Tiene una nueva alerta disponible\n"+isAlerta.getTipoAlerta());
+                };
             }
         }
 

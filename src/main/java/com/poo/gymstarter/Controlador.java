@@ -6,10 +6,7 @@ import Modelo.Enumeraciones.TipoAlerta;
 import Modelo.Enumeraciones.TipoMeta;
 import Modelo.Enumeraciones.TipoMetrica;
 import Modelo.Enumeraciones.TipoWearable;
-import Modelo.Excepciones.CredencialesInvalidasException;
-import Modelo.Excepciones.DispositivoNoEncontradoException;
-import Modelo.Excepciones.UsuarioNoEncontradoException;
-import Modelo.Excepciones.UsuarioYaExisteException;
+import Modelo.Excepciones.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -22,6 +19,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 
 import javafx.scene.control.CheckBox;
+
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -115,6 +114,158 @@ public class Controlador implements Initializable {
     public CheckBox puedeverCalidadSueno;
     public CheckBox puedeverVariabilidad;
 
+    public ChoiceBox<Cliente> clienteSeleccionadoClientes;
+    public ChoiceBox<Cliente> clienteSeleccionadoRecomendaciones;
+    public ChoiceBox<Cliente> clienteSeleccionadoReportes;
+    public ChoiceBox<ConstanteReferencial> constantesRegistradas;
+
+    public ListView<Metrica> listaActividadFisica;
+    private ObservableList<Metrica> listaActividadFisicaCliente = FXCollections.observableArrayList();
+    public ListView<Metrica> listaSignosVitales;
+    private ObservableList<Metrica> listaSignosVitalesCliente = FXCollections.observableArrayList();
+    public ListView<Metrica> listaCalidadSueno;
+    private ObservableList<Metrica> listaCalidadSuenoCliente = FXCollections.observableArrayList();
+
+    public ListView<Recomendacion> recomendacionesEmitidasACliente;
+    private ObservableList<Recomendacion> listaRecomendacionesEmitidasACliente = FXCollections.observableArrayList();
+
+    public ListView<Reporte> reportesGenerados;
+    private ObservableList<Reporte> listaReportesGenerados = FXCollections.observableArrayList();
+
+    private void cargarPermisosCliente() {
+        if (!(controlAplicacion.getUsuarioActual() instanceof Cliente cliente)) {
+            return;
+        }
+
+
+
+        Profesional profesionalSeleccionado = PCprofesionalseleccionado.getValue();
+        if (profesionalSeleccionado == null) {
+            return;
+        }
+
+        String correoProfesional = profesionalSeleccionado.getCorreo();
+
+        ControladorPermisosCompartir controladorPermisos = controlAplicacion.getControladorPermisosCompartir();
+        PermisoCompartir permiso = controladorPermisos.obtenerPermiso(
+                cliente.getCorreo(),
+                correoProfesional
+        );
+
+        if (permiso == null) {
+            puedeverFrecuencia.setSelected(false);
+            puedeverGlucosa.setSelected(false);
+            puedeverActividad.setSelected(false);
+            puedeverCalidadSueno.setSelected(false);
+            puedeverVariabilidad.setSelected(false);
+            return;
+        }
+
+        ArrayList<TipoMetrica> permitidas = permiso.getMetricasPermitidas();
+
+        puedeverFrecuencia.setSelected(permitidas.contains(TipoMetrica.FRECUENCIA_CARDIACA));
+        puedeverGlucosa.setSelected(permitidas.contains(TipoMetrica.GLUCOSA));
+        puedeverActividad.setSelected(permitidas.contains(TipoMetrica.ACTIVIDAD_FISICA));
+        puedeverCalidadSueno.setSelected(permitidas.contains(TipoMetrica.CALIDAD_SUENO));
+        puedeverVariabilidad.setSelected(permitidas.contains(TipoMetrica.VARIABILIDAD_CARDIACA));
+    }
+
+
+    private void actualizarPermisos() {
+        if (!(controlAplicacion.getUsuarioActual() instanceof Cliente cliente)) {
+            return;
+        }
+
+        Profesional profesionalSeleccionado = PCprofesionalseleccionado.getValue();
+        if (profesionalSeleccionado == null) {
+            System.err.println("No hay profesional seleccionado");
+            return;
+        }
+
+        String correoProfesional = profesionalSeleccionado.getCorreo();
+
+        ArrayList<TipoMetrica> metricasPermitidas = new ArrayList<>();
+
+        if (puedeverFrecuencia.isSelected()) {
+            metricasPermitidas.add(TipoMetrica.FRECUENCIA_CARDIACA);
+        }
+
+        if (puedeverGlucosa.isSelected()) {
+            metricasPermitidas.add(TipoMetrica.GLUCOSA);
+        }
+
+        if (puedeverActividad.isSelected()) {
+            metricasPermitidas.add(TipoMetrica.ACTIVIDAD_FISICA);
+        }
+
+        if (puedeverCalidadSueno.isSelected()) {
+            metricasPermitidas.add(TipoMetrica.CALIDAD_SUENO);
+        }
+
+        if (puedeverVariabilidad.isSelected()) {
+            metricasPermitidas.add(TipoMetrica.VARIABILIDAD_CARDIACA);
+        }
+
+        ControladorPermisosCompartir controladorPermisos = controlAplicacion.getControladorPermisosCompartir();
+        controladorPermisos.asignarPermisos(
+                cliente.getCorreo(),
+                correoProfesional,
+                metricasPermitidas
+        );
+
+        System.out.println("Permisos actualizados para " + cliente.getCorreo());
+        System.out.println("Profesional: " + correoProfesional);
+        System.out.println("Métricas compartidas: " + metricasPermitidas.size());
+    }
+
+    private void cargarClientesEnChoiceBoxes() {
+
+        // Limpia las listas actuales
+        ArrayList<Cliente> clientes = new ArrayList<>();
+        for (Usuario usuario: controlAplicacion.getControladorAutenticacion().getListaUsuarios()) {
+            if (!(usuario instanceof Cliente)) continue;
+            clientes.add((Cliente) usuario);
+        }
+        if (clientes.isEmpty()) return;
+        clienteSeleccionadoClientes.getItems().clear();
+        clienteSeleccionadoRecomendaciones.getItems().clear();
+        clienteSeleccionadoReportes.getItems().clear();
+        // Carga los clientes
+        clienteSeleccionadoClientes.getItems().addAll(clientes);
+        clienteSeleccionadoRecomendaciones.getItems().addAll(clientes);
+        clienteSeleccionadoReportes.getItems().addAll(clientes);
+    }
+
+    private void cargarConstantesEnChoiceBox() {
+        ArrayList<ConstanteReferencial> constantes = controlAplicacion.getControladorConstantes().getListaConstantes();
+        if (constantes == null || constantes.isEmpty()) return;
+        constantesRegistradas.getItems().clear();
+        constantesRegistradas.getItems().addAll(constantes);
+    }
+
+
+    private void configurarListenersPermisos() {
+        // Listener para cada checkbox
+        puedeverFrecuencia.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            actualizarPermisos();
+        });
+
+        puedeverGlucosa.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            actualizarPermisos();
+        });
+
+        puedeverActividad.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            actualizarPermisos();
+        });
+
+        puedeverCalidadSueno.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            actualizarPermisos();
+        });
+
+        puedeverVariabilidad.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            actualizarPermisos();
+        });
+    }
 
     private void cambiarPanelPadre(AnchorPane panelSeleccionado) {
         profesional.setVisible(false);
@@ -136,8 +287,6 @@ public class Controlador implements Initializable {
 
         panelSeleccionado.setVisible(true);
     }
-
-
 
     private void cambiarPanelProfesional(AnchorPane panelSeleccionado) {
         pspRecomendaciones.setVisible(false);
@@ -162,13 +311,13 @@ public class Controlador implements Initializable {
 
     private void filtrarMetricas(TipoMetrica filtro) {
         if (filtro == null) {
-            listaMetricasCliente.setAll(listaMetricasExterna);
+            listaMetricasCliente.setAll(((Cliente)  controlAplicacion.getUsuarioActual()).getListaMetricas());
             return;
         }
 
         ArrayList<Metrica> filtradas = new ArrayList<>();
 
-        for (Metrica metrica : listaMetricasExterna) {
+        for (Metrica metrica : ((Cliente)  controlAplicacion.getUsuarioActual()).getListaMetricas()) {
             if (metrica.getTipoMetrica() == filtro) filtradas.add(metrica);
         }
         listaMetricasCliente.setAll(filtradas);
@@ -188,12 +337,6 @@ public class Controlador implements Initializable {
     private void regresarAlMenuAcceso(){
         cambiarPanelAcceso(paMenu);
     }
-
-    private ArrayList<Wearable> listaExternaWearables = new ArrayList<>();
-    private ArrayList<Recomendacion> listaExternaRecomendaciones = new ArrayList<>();
-    private ArrayList<Alerta> listaExternaAlertas = new ArrayList<>();
-    private ArrayList<Metrica> listaMetricasExterna = new ArrayList<>();
-    private ArrayList<Meta> listaExternaMetas = new ArrayList<>();
 
     @FXML
     private void eliminarWearable() {
@@ -332,6 +475,7 @@ public class Controlador implements Initializable {
         PSPapellidos.setText(usuario.getApellidos());
     }
 
+    public ChoiceBox<Profesional> PCprofesionalseleccionado;
     public TextField PCnombre;
     public TextField PCcorreo;
     public TextField PCapellidos;
@@ -342,6 +486,9 @@ public class Controlador implements Initializable {
         PCnombre.setText(usuario.getNombre());
         PCcorreo.setText(usuario.getCorreo());
         PCapellidos.setText(usuario.getApellidos());
+
+        cargarProfesionalesDisponibles();
+        cargarPermisosCliente();
     }
 
     public Label clienteGreet;
@@ -349,6 +496,34 @@ public class Controlador implements Initializable {
 
     public TextField PAemail;
     public TextField PAcontrasena;
+
+    private void cargarProfesionalesDisponibles() {
+        ArrayList<Usuario> todosLosUsuarios = controlAplicacion.getControladorAutenticacion().getListaUsuarios();
+        ArrayList<Profesional> profesionales = new ArrayList<>();
+
+        for (Usuario usuario : todosLosUsuarios) {
+            if (usuario instanceof Profesional profesional) {
+                profesionales.add(profesional);
+            }
+        }
+
+        PCprofesionalseleccionado.getItems().clear();
+        PCprofesionalseleccionado.getItems().addAll(profesionales);
+
+        // Seleccionar el primero por defecto
+        if (!profesionales.isEmpty()) {
+            PCprofesionalseleccionado.setValue(profesionales.get(0));
+        }
+
+        // Listener para cuando se cambia el profesional
+        PCprofesionalseleccionado.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldProf, newProf) -> {
+                    if (newProf != null) {
+                        cargarPermisosCliente();
+                    }
+                }
+        );
+    }
 
     @FXML
     private void iniciarSesion() {
@@ -372,12 +547,15 @@ public class Controlador implements Initializable {
             clienteGreet.setText("Hola, "+currentUser.getNombre()+"!");
             cargarPerfilCliente();
             actualizarListasCliente();
+            ActualizarNotificaciones();
         }
         if (currentUser instanceof Profesional) {
-            cambiarPanelCliente(pspMenu);
+            cambiarPanelProfesional(pspMenu);
             cambiarPanelPadre(profesional);
             profesionalGreet.setText("Hola, "+currentUser.getNombre()+"!");
             cargarPerfilProfesional();
+            cargarClientesEnChoiceBoxes();
+            cargarConstantesEnChoiceBox();
         }
     }
 
@@ -428,12 +606,15 @@ public class Controlador implements Initializable {
             clienteGreet.setText("Hola, "+newUser.getNombre()+"!");
             cargarPerfilCliente();
             actualizarListasCliente();
+            ActualizarNotificaciones();
         }
         if (newUser instanceof Profesional) {
-            cambiarPanelCliente(pspMenu);
+            cambiarPanelProfesional(pspMenu);
             cambiarPanelPadre(profesional);
             profesionalGreet.setText("Hola, "+newUser.getNombre()+"!");
             cargarPerfilProfesional();
+            cargarClientesEnChoiceBoxes();
+            cargarConstantesEnChoiceBox();
         }
         registroNombre.setText("");
         registroApellidos.setText("");
@@ -441,6 +622,294 @@ public class Controlador implements Initializable {
         registroContrasena.setText("");
         registroContrasenaConfirmacion.setText("");
         checkboxTerminos.setSelected(false);
+    }
+    public Label noticeMetricasVitales;
+    public Label noticeMetricasSueno;
+    public Label noticeMetricasFisica;
+
+    private void cargarActividadFisicaCliente(Cliente clienteSeleccionado) {
+        listaActividadFisicaCliente.clear();
+
+        if (clienteSeleccionado == null) return;
+
+        boolean permiso = controlAplicacion.getControladorPermisosCompartir().puedeVerMetrica(clienteSeleccionado.getCorreo(), controlAplicacion.getUsuarioActual().getCorreo(), TipoMetrica.ACTIVIDAD_FISICA);
+
+        if (!permiso) {
+            noticeMetricasFisica.setText("El cliente no le ha concedido acceso a estas metricas");
+            return;
+        }
+        noticeMetricasFisica.setText("");
+        for (Metrica m : clienteSeleccionado.getListaMetricas()) {
+            if (m.getTipoMetrica() != TipoMetrica.ACTIVIDAD_FISICA) continue;
+            listaActividadFisicaCliente.add(m);
+        }
+    }
+
+    private void cargarSignosVitalesCliente(Cliente clienteSeleccionado) {
+        listaSignosVitalesCliente.clear();
+        if (clienteSeleccionado == null) return;
+
+        String correoCliente = clienteSeleccionado.getCorreo();
+        String correoProfesional = controlAplicacion.getUsuarioActual().getCorreo();
+
+        boolean puedeHRV = controlAplicacion.getControladorPermisosCompartir().puedeVerMetrica(correoCliente, correoProfesional, TipoMetrica.VARIABILIDAD_CARDIACA);
+        boolean puedeFC = controlAplicacion.getControladorPermisosCompartir().puedeVerMetrica(correoCliente, correoProfesional, TipoMetrica.FRECUENCIA_CARDIACA);
+        boolean puedeGlucosa = controlAplicacion.getControladorPermisosCompartir().puedeVerMetrica(correoCliente, correoProfesional, TipoMetrica.GLUCOSA);
+
+        if (!puedeHRV && !puedeFC && !puedeGlucosa) {
+            noticeMetricasVitales.setText("El cliente no le ha concedido acceso a estas metricas");
+            return;
+        }
+        noticeMetricasVitales.setText("");
+        for (Metrica m : clienteSeleccionado.getListaMetricas()) {
+
+            TipoMetrica tipo = m.getTipoMetrica();
+
+            if (tipo == TipoMetrica.VARIABILIDAD_CARDIACA && puedeHRV) {
+                listaSignosVitalesCliente.add(m);
+            }
+
+            if (tipo == TipoMetrica.FRECUENCIA_CARDIACA && puedeFC) {
+                listaSignosVitalesCliente.add(m);
+            }
+
+            if (tipo == TipoMetrica.GLUCOSA && puedeGlucosa) {
+                listaSignosVitalesCliente.add(m);
+            }
+        }
+    }
+
+    private void cargarCalidadSuenoCliente(Cliente clienteSeleccionado) {
+
+        // 1. Limpiar la lista
+        listaCalidadSuenoCliente.clear();
+
+        // 2. Si no hay cliente seleccionado → salir
+        if (clienteSeleccionado == null) return;
+
+        // 3. Obtener correos
+        String correoCliente = clienteSeleccionado.getCorreo();
+        String correoProfesional = controlAplicacion.getUsuarioActual().getCorreo();
+
+        // 4. Verificar permiso
+        boolean puedeSueno = controlAplicacion.getControladorPermisosCompartir()
+                .puedeVerMetrica(correoCliente, correoProfesional, TipoMetrica.CALIDAD_SUENO);
+
+        // 5. Si NO tiene permiso → nada que cargar
+        if (!puedeSueno) {
+            noticeMetricasSueno.setText("El cliente no le ha concedido acceso a estas metricas");
+            return;
+        }
+        noticeMetricasSueno.setText("");
+
+        // 6. Cargar solo métricas de CALIDAD_SUENO
+        for (Metrica m : clienteSeleccionado.getListaMetricas()) {
+            if (m.getTipoMetrica() == TipoMetrica.CALIDAD_SUENO) {
+                listaCalidadSuenoCliente.add(m);
+            }
+        }
+    }
+
+    private void cargarRecomendacionesEmitidasACliente(Cliente clienteSeleccionado) {
+        listaRecomendacionesEmitidasACliente.clear();
+        if (clienteSeleccionado == null) return;
+
+        Usuario actual = controlAplicacion.getUsuarioActual();
+        if (!(actual instanceof Profesional profesional)) {
+            return;
+        }
+
+        String correoCliente = clienteSeleccionado.getCorreo();
+
+        for (Recomendacion recomendacion : profesional.getListaRecomendacionesEmitidas()) {
+            if (recomendacion.getCorreoCliente().equals(correoCliente)) {
+                listaRecomendacionesEmitidasACliente.add(recomendacion);
+            }
+        }
+    }
+
+    public TextArea recomendacionContenido;
+    private void mostrarContenidoRecomendacion(Recomendacion recomendacion) {
+        if (recomendacion == null) {
+            recomendacionContenido.clear();
+            return;
+        }
+
+        recomendacionContenido.setText(recomendacion.getContenido());
+    }
+
+    private void cargarReportesDeCliente(Cliente clienteSeleccionado) {
+        listaReportesGenerados.clear();
+        if (clienteSeleccionado == null) return;
+
+        Usuario actual = controlAplicacion.getUsuarioActual();
+        if (!(actual instanceof Profesional profesional)) {
+            return;
+        }
+
+        String correoCliente = clienteSeleccionado.getCorreo();
+
+        for (Reporte r : profesional.getListaReportes()) {
+            if (r.getCorreoCliente().equals(correoCliente)) {
+                listaReportesGenerados.add(r);
+            }
+        }
+    }
+
+
+    public TextArea contenidoRecomendacion;
+    public Label emitirNotice;
+    @FXML
+    private void emitirRecomendacion() {
+        Cliente cliente = clienteSeleccionadoRecomendaciones.getValue();
+
+        if (cliente == null) {
+            mostrarError("Error!", "Seleccione un cliente valido");
+            return;
+        }
+        if (!(controlAplicacion.getUsuarioActual() instanceof Profesional profesional)) {
+            return;
+        }
+
+        Recomendacion nueva = controlAplicacion.getControladorRecomendaciones().emitirRecomendacion(
+                profesional,
+                cliente,
+                contenidoRecomendacion.getText()
+        );
+        if (nueva == null) return;
+        emitirNotice.setText("Emitida con exito!");
+        contenidoRecomendacion.setText("");
+        controlAplicacion.getControladorNotificaciones().emitirNotificacionACliente(cliente, "Nueva recomendación", "Tiene una nueva recomendacion disponible.");
+        controlAplicacion.getControladorAutenticacion().guardarUsuarios();
+        cargarRecomendacionesEmitidasACliente(cliente);
+    }
+
+    public TextArea reporteContenido;
+    public Label reporteNotice;
+    @FXML
+    private void generarReporte() {
+        Cliente cliente = clienteSeleccionadoReportes.getValue();
+        if (cliente == null) {
+            mostrarError("Error!", "Seleccione un cliente valido");
+            return;
+        }
+        if (!(controlAplicacion.getUsuarioActual() instanceof Profesional actual)) {
+            return;
+        }
+        PermisoCompartir permisos = controlAplicacion.getControladorPermisosCompartir().obtenerPermiso(
+                cliente.getCorreo(),
+                actual.getCorreo()
+        );
+        if (permisos == null || permisos.getMetricasPermitidas().size() <= 0) {
+            mostrarError("Error!", "No existe el permiso con el usuario o el usuario no le ha concedido permisos a las metricas");
+            return;
+        }
+        Reporte reporte = null;
+        try {
+            reporte = controlAplicacion.getControladorReportes().generarReporte(
+                    actual,
+                    cliente,
+                    permisos.getMetricasPermitidas()
+            );
+        } catch (AccesoDenegadoException e) {
+            mostrarError("Error!", e.getMessage());
+            return;
+        }
+
+        if (reporte == null) return;
+        reporteContenido.setText(reporte.getResumen());
+        controlAplicacion.getControladorAutenticacion().guardarUsuarios();
+        cargarReportesDeCliente(cliente);
+    }
+
+
+    public Spinner<Double> limitecriticoSuperior;
+    public Spinner<Double> limitecriticoMenor;
+    public Spinner<Double> limitenormalSuperior;
+    public Spinner<Double> limitenormalMenor;
+    boolean cargandoConstantes = false;
+    private void cargarConstanteEnSpinners(ConstanteReferencial c) {
+        if (c == null) return;
+        cargandoConstantes = true;
+        limitecriticoMenor.getValueFactory().setValue(c.getLimiteInferiorCritico());
+        limitecriticoSuperior.getValueFactory().setValue(c.getLimiteSuperiorCritico());
+        limitenormalMenor.getValueFactory().setValue(c.getLimiteInferiorNormal());
+        limitenormalSuperior.getValueFactory().setValue(c.getLimiteSuperiorNormal());
+        cargandoConstantes = false;
+    }
+
+    private void actualizarConstanteSeleccionada() {
+        ConstanteReferencial seleccionada = constantesRegistradas.getValue();
+        if (seleccionada == null) return;
+        if (cargandoConstantes) return;
+
+        double criticoMenor = limitecriticoMenor.getValue();
+        double criticoMayor = limitecriticoSuperior.getValue();
+        double normalMenor = limitenormalMenor.getValue();
+        double normalMayor = limitenormalSuperior.getValue();
+
+        boolean actualizada = controlAplicacion.getControladorConstantes().actualizarConstante(
+                seleccionada.getTipoMetrica(),
+                normalMenor,
+                normalMayor,
+                criticoMenor,
+                criticoMayor
+        );
+
+        if (!actualizada) {
+            mostrarError("Error al actualizar constante", "No se pudo actualizar la constante deseada");
+        }
+    }
+
+    public ListView<Notificacion> PClistanotificaciones;
+    private ObservableList<Notificacion> listaNotificaciones = FXCollections.observableArrayList();
+
+    public void ActualizarNotificaciones() {
+        if (!(controlAplicacion.getUsuarioActual() instanceof Cliente actual)) {
+            return;
+        }
+        listaNotificaciones.setAll(actual.getListaNotificaciones());
+    }
+
+    @FXML
+    public void limpiarNotificaciones() {
+        if (!(controlAplicacion.getUsuarioActual() instanceof Cliente actual)) {
+            return;
+        }
+        controlAplicacion.getControladorNotificaciones().limpiarNotificacionesDeCliente(actual);
+        listaNotificaciones.clear();
+    }
+
+    @FXML
+    public void generarSimulacion() {
+        Usuario usuario = controlAplicacion.getUsuarioActual();
+        if (!(usuario instanceof Cliente cliente)) {
+            System.out.println("Debe iniciar sesión como cliente.");
+            return;
+        }
+
+        ArrayList<Wearable> listaDispositivos = cliente.getListaWearables();
+        if (listaDispositivos.isEmpty()) {
+            System.out.println("El cliente no tiene dispositivos registrados.");
+            return;
+        }
+
+        ControladorAlertas controladorAlertas = controlAplicacion.getControladorAlertas();
+        ControladorMetricas controladorMetricas = controlAplicacion.getControladorMetricas();
+        ControladorDispositivos controladorDispositivos = controlAplicacion.getControladorDispositivos();
+        ControladorNotificaciones controladorNotificaciones = controlAplicacion.getControladorNotificaciones();
+        for (Wearable wearable : listaDispositivos) {
+            try {
+                controladorDispositivos.sincronizarDatos(cliente, wearable.getID(), controladorMetricas, controladorAlertas, controladorNotificaciones);
+            } catch (DispositivoNoEncontradoException e) {
+                mostrarError("Error en la simulacion", e.getMessage());
+            }
+        }
+
+        System.out.println("---- Simulación completada ----");
+        ActualizarNotificaciones();
+        actualizarListasCliente();
+        controlAplicacion.getControladorAutenticacion().guardarUsuarios();
     }
 
     @Override
@@ -489,6 +958,14 @@ public class Controlador implements Initializable {
         PClistaalertas.setItems(listaAlertasCliente);
         PClistametricas.setItems(listaMetricasCliente);
         PClistametas.setItems(listaMetasCliente);
+        listaActividadFisica.setItems(listaActividadFisicaCliente);
+        listaSignosVitales.setItems(listaSignosVitalesCliente);
+        listaCalidadSueno.setItems(listaCalidadSuenoCliente);
+        recomendacionesEmitidasACliente.setItems(listaRecomendacionesEmitidasACliente);
+        reportesGenerados.setItems(listaReportesGenerados);
+        PClistanotificaciones.setItems(listaNotificaciones);
+
+
 
         cambiarPanelPadre(acceso);
         regresarAlMenuAcceso();
@@ -513,6 +990,28 @@ public class Controlador implements Initializable {
                 }
             }
         });
+
+        PClistanotificaciones.setCellFactory(list -> new ListCell<Notificacion>() {
+            private final Label label = new Label();
+
+            {
+                label.setWrapText(true);
+                label.setMaxWidth(350);
+            }
+
+            @Override
+            protected void updateItem(Notificacion item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || item == null) {
+                    setGraphic(null);
+                } else {
+                    label.setText(item.toString());
+                    setGraphic(label);
+                }
+            }
+        });
+
 
         PClistarecomendaciones.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldValue, nueva) -> {
@@ -557,6 +1056,30 @@ public class Controlador implements Initializable {
             }
         });
 
+        recomendacionesEmitidasACliente.setCellFactory(list -> new ListCell<Recomendacion>() {
+
+            private final Label label = new Label();
+
+            {
+                label.setWrapText(true);   // permite varias líneas
+                label.setMaxWidth(380);    // AJUSTA al ancho de tu ListView
+            }
+
+            @Override
+            protected void updateItem(Recomendacion item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || item == null) {
+                    setGraphic(null);
+                    setText(null);
+                } else {
+                    label.setText(item.toString());  // o item.formatearBonito()
+                    setGraphic(label);
+                }
+            }
+        });
+
+
         PClistametricas.setCellFactory(list -> new ListCell<Metrica>() {
             @Override
             protected void updateItem(Metrica item, boolean empty) {
@@ -588,5 +1111,61 @@ public class Controlador implements Initializable {
             }
         });
 
+        reportesGenerados.setCellFactory(list -> new ListCell<Reporte>() {
+
+            private final Label label = new Label();
+
+            {
+                label.setWrapText(true);
+                label.setMaxWidth(380); // ajusta al ancho del ListView
+            }
+
+            @Override
+            protected void updateItem(Reporte item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || item == null) {
+                    setGraphic(null);
+                    setText(null);
+                } else {
+                    label.setText(item.toString());
+                    setGraphic(label);
+                }
+            }
+        });
+
+
+        clienteSeleccionadoClientes.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldV, newV) -> cargarActividadFisicaCliente(newV)
+        );
+        clienteSeleccionadoClientes.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldV, newV) -> cargarSignosVitalesCliente(newV)
+        );
+        clienteSeleccionadoClientes.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldV, newV) -> cargarCalidadSuenoCliente(newV)
+        );
+        clienteSeleccionadoRecomendaciones.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldVal, newVal) -> cargarRecomendacionesEmitidasACliente(newVal)
+        );
+        clienteSeleccionadoReportes.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((obs, oldVal, newVal) -> cargarReportesDeCliente(newVal));
+        recomendacionesEmitidasACliente.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((obs, oldVal, newVal) -> mostrarContenidoRecomendacion(newVal));
+
+        limitecriticoMenor.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 99999, 0, 1));
+        limitecriticoSuperior.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 99999, 0, 1));
+        limitenormalMenor.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 99999, 0, 1));
+        limitenormalSuperior.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 99999, 0, 1));
+        limitecriticoMenor.valueProperty().addListener((obs, oldVal, newVal) -> actualizarConstanteSeleccionada());
+        limitecriticoSuperior.valueProperty().addListener((obs, oldVal, newVal) -> actualizarConstanteSeleccionada());
+        limitenormalMenor.valueProperty().addListener((obs, oldVal, newVal) -> actualizarConstanteSeleccionada());
+        limitenormalSuperior.valueProperty().addListener((obs, oldVal, newVal) -> actualizarConstanteSeleccionada());
+        constantesRegistradas.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((obs, oldVal, newVal) -> cargarConstanteEnSpinners(newVal));
+
+        configurarListenersPermisos();
     }
 }

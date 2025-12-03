@@ -1,10 +1,12 @@
 package Modelo.Entidades;
 
 import Modelo.Enumeraciones.TipoMetrica;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Reloj extends Wearable {
+public class Reloj extends Wearable implements Serializable  {
 
     public Reloj(String ID, String descripcion) {
         super(ID, descripcion);

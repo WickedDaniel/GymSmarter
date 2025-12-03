@@ -36,4 +36,9 @@ public class Profesional extends Usuario implements Serializable {
     public void setListaRecomendacionesEmitidas(ArrayList<Recomendacion> listaRecomendacionesEmitidas) {
         this.listaRecomendacionesEmitidas = listaRecomendacionesEmitidas;
     }
+
+    @Override
+    public String toString() {
+        return getNombre() + " " + getApellidos() + " (" + getCorreo() + ")";
+    }
 }

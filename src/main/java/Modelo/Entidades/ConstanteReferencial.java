@@ -100,8 +100,6 @@ public class ConstanteReferencial implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("%s: Normal[%.2f-%.2f] Crítico[%.2f-%.2f] %s",
-                tipoMetrica, limiteInferiorNormal, limiteSuperiorNormal,
-                limiteInferiorCritico, limiteSuperiorCritico, unidad);
+        return tipoMetrica + " ("+unidad+")";
     }
 }
